@@ -1,17 +1,62 @@
-import { pool } from "../config/db.js";
+import * as authService from "../services/auth.service.js";
 
-export const mockLogin = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    const [rows] = await pool.query(
-      "SELECT id, username, email, avatar, role FROM users WHERE email = ? LIMIT 1",
-      [email]
-    );
+    const result = await authService.register(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    if (!rows[0]) return res.status(401).json({ message: "Invalid account" });
-    if (rows[0].role !== "member") return res.status(403).json({ message: "Only member can access" });
+export const verifyRegisterOtp = async (req, res, next) => {
+  try {
+    const result = await authService.verifyRegisterOtp(req.body);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    res.json({ user: rows[0], token: "mock-token-member" });
+export const resendRegisterOtp = async (req, res, next) => {
+  try {
+    const result = await authService.resendRegisterOtp(req.body.email);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const login = async (req, res, next) => {
+  try {
+    const result = await authService.login(req.body);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const result = await authService.forgotPassword(req.body.email);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const result = await authService.resetPassword(req.body);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMe = async (req, res, next) => {
+  try {
+    res.json({ user: req.user });
   } catch (error) {
     next(error);
   }

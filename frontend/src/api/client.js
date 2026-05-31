@@ -6,12 +6,20 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const auth = JSON.parse(localStorage.getItem("auth") || "null");
-  if (auth?.user) {
-    config.headers["x-user-role"] = auth.user.role;
-    config.headers["x-user-id"] = auth.user.id;
-    config.headers["x-user-name"] = auth.user.username;
+  if (auth?.token) {
+    config.headers.Authorization = `Bearer ${auth.token}`;
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("auth");
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

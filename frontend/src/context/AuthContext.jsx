@@ -11,13 +11,29 @@ export const AuthProvider = ({ children }) => {
     else localStorage.removeItem("auth");
   }, [auth]);
 
-  const login = async (email) => {
-    const { data } = await api.post("/auth/login", { email });
-    setAuth(data);
+  const setSession = (data) => {
+    setAuth({ user: data.user, token: data.token, redirectUrl: data.redirectUrl });
+    return data;
   };
+
+  const login = async (email, password) => {
+    const { data } = await api.post("/auth/login", { email, password });
+    return setSession(data);
+  };
+
+  const verifyOtp = async (email, otp) => {
+    const { data } = await api.post("/auth/verify-otp", { email, otp });
+    return setSession(data);
+  };
+
+  const updateUser = (user) => setAuth((prev) => (prev ? { ...prev, user } : prev));
 
   const logout = () => setAuth(null);
 
-  const value = useMemo(() => ({ auth, login, logout }), [auth]);
+  const value = useMemo(
+    () => ({ auth, login, verifyOtp, updateUser, logout, isAuthenticated: Boolean(auth?.token) }),
+    [auth]
+  );
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

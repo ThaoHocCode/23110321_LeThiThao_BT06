@@ -6,11 +6,11 @@ import {
   getProducts,
   getProductsByCategoryInfinite,
 } from "../controllers/product.controller.js";
-import { requireMember } from "../middlewares/auth.middleware.js";
+import { authenticate, requireUser } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/home", requireMember, getHomeData);
+router.get("/home", authenticate, requireUser, getHomeData);
 router.get("/highlights", getHighlights);
 router.get("/search", getProducts);
 router.get("/category/:slug/infinite", getProductsByCategoryInfinite);

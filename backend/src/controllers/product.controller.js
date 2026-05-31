@@ -1,4 +1,4 @@
-﻿import { pool } from "../config/db.js";
+﻿﻿import { pool } from "../config/db.js";
 import { findProductById, normalizeProductRow, queryProducts } from "../services/product.service.js";
 
 export const getHomeData = async (req, res, next) => {
@@ -19,9 +19,15 @@ export const getHomeData = async (req, res, next) => {
         { id: 1, title: "Mien phi giao hang cho don tu 2 trieu" },
         { id: 2, title: "Bao hanh keo de 90 ngay" },
       ],
-      newArrivals: newArrivals.map(normalizeProductRow),
-      bestSellers: bestSellers.map(normalizeProductRow),
-      user: req.user,
+      newArrivals: (newArrivals || []).map(normalizeProductRow),
+      bestSellers: (bestSellers || []).map(normalizeProductRow),
+      user: req.user ? {
+        id: req.user.id,
+        username: req.user.username,
+        fullName: req.user.fullName,
+        email: req.user.email,
+        role: req.user.role,
+      } : null,
     });
   } catch (error) {
     next(error);
@@ -44,7 +50,7 @@ export const getProductDetail = async (req, res, next) => {
       [product.category_id, id]
     );
 
-    res.json({ ...product, relatedProducts: related.map(normalizeProductRow) });
+    res.json({ ...product, relatedProducts: (related || []).map(normalizeProductRow) });
   } catch (error) {
     next(error);
   }
